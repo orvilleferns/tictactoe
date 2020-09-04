@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Cell } from '../cell/Cell'
 
+import { evaluateWinner } from '../../core/winning'
+
 import './Board.css';
 
 interface IProps {
@@ -89,7 +91,7 @@ export class Board extends React.PureComponent<IProps, IState> {
                 boardData,
             })
 
-            let winner = this.evaluateWinner(boardData, selectedRowIndex, selectedCellIndex)
+            let winner = evaluateWinner(boardData, selectedRowIndex, selectedCellIndex)
 
             if (winner !== null) {
                 this.setState({ winner })
@@ -100,57 +102,7 @@ export class Board extends React.PureComponent<IProps, IState> {
     private resetBoard = () => {
         this.setState({ ...initialState });
         playerIndex = 0;
+        console.log(this.state, initialState);
     }
-
-    private evaluateWinner = (boardData: string[][], selectedRowIndex: number, selectedCellIndex: number) => {
-        let winner: string | null = null;
-        let vIndex = 0;
-        let hIndex = 0;
-
-        const checkRow = (rowIndex: number) => {
-            return (boardData[rowIndex][vIndex] !== '' &&
-                boardData[rowIndex][vIndex] === boardData[rowIndex][vIndex + 1] &&
-                boardData[rowIndex][vIndex] === boardData[rowIndex][vIndex + 2])
-        };
-
-        const checkCol = (cellIndex: number) => {
-            return (boardData[hIndex][cellIndex] !== '' &&
-                boardData[hIndex][cellIndex] === boardData[hIndex + 1][cellIndex] &&
-                boardData[hIndex][cellIndex] === boardData[hIndex + 2][cellIndex])
-        };
-
-        const checkDiag1 = () => {
-            if (boardData[hIndex + 1][vIndex + 1] !== '') {
-                return (boardData[hIndex][vIndex] === boardData[hIndex + 1][vIndex + 1] &&
-                    boardData[hIndex][vIndex] === boardData[hIndex + 2][vIndex + 2])
-            }
-        }
-
-        const checkDiag2 = () => {
-            if (boardData[hIndex + 1][vIndex + 1] !== '') {
-                return (boardData[hIndex + 0][vIndex + 2] === boardData[hIndex + 1][vIndex + 1] &&
-                    boardData[hIndex + 0][vIndex + 2] === boardData[hIndex + 2][vIndex + 0])
-            }
-        }
-
-        const gameHasEnded = (boardData: string[][]) => {
-            return boardData.every(row => {
-               return row.every(cell => {
-                    return cell !== '';
-                })
-            })
-        }
-
-        if (checkRow(selectedRowIndex) || checkCol(selectedCellIndex) || checkDiag1() || checkDiag2()) {
-            winner = boardData[selectedRowIndex][selectedCellIndex];
-        } else {
-            if (gameHasEnded(boardData)) {
-                winner = 'draw'
-            }
-        }
-
-        return winner;
-    }
-
 
 }
