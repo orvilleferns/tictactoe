@@ -2,48 +2,41 @@ import React from 'react';
 
 import { Cell } from '../cell/Cell'
 
-import { evaluateWinner } from '../../core/winning'
-
 import './Board.css';
+import { boardDataSelector, winnerSelector } from './state/selectors';
+import { connect } from 'react-redux';
+import { createStructuredSelector} from 'reselect'
 
-interface IProps {
+interface IStateProps {
+    boardData: ReturnType<typeof boardDataSelector>;
+    winner: ReturnType<typeof winnerSelector>;
+}
+
+interface IProps extends IStateProps{
 
 }
 
-interface IState {
-    boardData: string[][];
-    winner: string | null;
-}
+const mapStateToProps = createStructuredSelector<any, IStateProps>({
+    boardData: boardDataSelector,
+    winner: winnerSelector
+})
 
-const PLAYERS = ['x', 'o'];
+// const PLAYERS = ['x', 'o'];
 
-let playerIndex = 0;
+// let playerIndex = 0;
 
-const initialState: IState = {
-    boardData: [
-        ['', '', ''],
-        ['', '', ''],
-        ['', '', ''],
-    ],
-    winner: null,
-}
-
-const getNextPlayer = () => {
-    const nextIndex = (playerIndex + 1) % PLAYERS.length;
-    const nextPlayer = PLAYERS[playerIndex];
-    playerIndex = nextIndex;
-    return nextPlayer;
-}
+// const getNextPlayer = () => {
+//     const nextIndex = (playerIndex + 1) % PLAYERS.length;
+//     const nextPlayer = PLAYERS[playerIndex];
+//     playerIndex = nextIndex;
+//     return nextPlayer;
+// }
 
 
-export class Board extends React.PureComponent<IProps, IState> {
-    constructor(props: IProps) {
-        super(props);
-        this.state = { ...initialState };
-    }
+ class BoardComponent extends React.PureComponent<IProps> {
     public render() {
         let index = 0;
-        const { boardData, winner } = this.state;
+        const { boardData, winner } = this.props;
         return (
             <div className="board">
                 {
@@ -55,16 +48,16 @@ export class Board extends React.PureComponent<IProps, IState> {
                                     key={index++}
                                     rowIndex={rowIndex}
                                     cellIndex={cellIndex}
-                                    onCellClicked={(selectedRowIndex, selectedCellIndex) => this.updateBoardData(selectedRowIndex, selectedCellIndex, cell)}
+                                    onCellClicked={(selectedRowIndex, selectedCellIndex) => null}
                                 />);
                         });
                     })
                 }
 
                 <div>
-                    <button onClick={() => this.resetBoard()}>
+                    <button>
                         Reset board
-                </button>
+                    </button>
                 </div>
                 {winner && winner !== 'draw' &&
                     <div>
@@ -81,28 +74,30 @@ export class Board extends React.PureComponent<IProps, IState> {
         )
     }
 
-    private updateBoardData = (selectedRowIndex: number, selectedCellIndex: number, cell: string) => {
-        if (this.state.winner === null && cell === '') {
-            const boardData: string[][] = this.state.boardData.map((row) => row.map((cell) => cell));
+    // private updateBoardData = (selectedRowIndex: number, selectedCellIndex: number, cell: string) => {
+    //     if (this.state.winner === null && cell === '') {
+    //         const boardData: string[][] = this.state.boardData.map((row) => row.map((cell) => cell));
 
-            boardData[selectedRowIndex][selectedCellIndex] = getNextPlayer()
+    //         boardData[selectedRowIndex][selectedCellIndex] = getNextPlayer()
 
-            this.setState({
-                boardData,
-            })
+    //         this.setState({
+    //             boardData,
+    //         })
 
-            let winner = evaluateWinner(boardData, selectedRowIndex, selectedCellIndex)
+    //         let winner = evaluateWinner(boardData, selectedRowIndex, selectedCellIndex)
 
-            if (winner !== null) {
-                this.setState({ winner })
-            }
-        }
-    }
+    //         if (winner !== null) {
+    //             this.setState({ winner })
+    //         }
+    //     }
+    // }
 
-    private resetBoard = () => {
-        this.setState({ ...initialState });
-        playerIndex = 0;
-        console.log(this.state, initialState);
-    }
+    // private resetBoard = () => {
+    //     this.setState({ ...initialState });
+    //     playerIndex = 0;
+    //     console.log(this.state, initialState);
+    // }
 
 }
+
+export const Board = connect(mapStateToProps)(BoardComponent)
