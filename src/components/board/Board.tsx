@@ -83,7 +83,7 @@ export class Board extends React.PureComponent<IProps, IState> {
 
     private updateBoardData = (selectedRowIndex: number, selectedCellIndex: number, cell: string) => {
         if (this.state.winner === null && cell === '') {
-            const boardData: string[][] = [...this.state.boardData];
+            const boardData: string[][] = this.state.boardData.map((row) => row.map((cell) => cell));
 
             boardData[selectedRowIndex][selectedCellIndex] = getNextPlayer()
 
