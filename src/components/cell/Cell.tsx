@@ -18,14 +18,15 @@ export class Cell extends React.PureComponent<IProps> {
         const {
             cellIndex,
             rowIndex,
-    
+            data,
             onCellClicked
         } = this.props;
+
+        const classes = `cell ${data}`
         
         return (
-            <div className="cell" 
+            <div className={classes} 
             onClick={()=> onCellClicked(rowIndex, cellIndex)}>
-                {this.props.data}
             </div>
         )
     }
