@@ -1,39 +1,38 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
 
 import { Cell } from '../cell/Cell'
+import { boardDataSelector, winnerSelector } from './state/selectors';
+import { updateBoardData, resetBoard } from './state/actions';
 
 import './Board.css';
-import { boardDataSelector, winnerSelector } from './state/selectors';
-import { connect } from 'react-redux';
-import { createStructuredSelector} from 'reselect'
 
 interface IStateProps {
-    boardData: ReturnType<typeof boardDataSelector>;
-    winner: ReturnType<typeof winnerSelector>;
+  boardData: ReturnType<typeof boardDataSelector>;
+  winner: ReturnType<typeof winnerSelector>;
 }
 
-interface IProps extends IStateProps{
+interface IDispatchProps {
+  updateBoardData: typeof updateBoardData;
+  resetBoard: typeof resetBoard;
+}
+
+interface IProps extends IStateProps, IDispatchProps {
 
 }
 
 const mapStateToProps = createStructuredSelector<any, IStateProps>({
-    boardData: boardDataSelector,
-    winner: winnerSelector
-})
+  boardData: boardDataSelector,
+  winner: winnerSelector,
+});
 
-// const PLAYERS = ['x', 'o'];
+const mapDispatchToProps = {
+  updateBoardData,
+  resetBoard,
+}
 
-// let playerIndex = 0;
-
-// const getNextPlayer = () => {
-//     const nextIndex = (playerIndex + 1) % PLAYERS.length;
-//     const nextPlayer = PLAYERS[playerIndex];
-//     playerIndex = nextIndex;
-//     return nextPlayer;
-// }
-
-
- class BoardComponent extends React.PureComponent<IProps> {
+class BoardComponent extends React.PureComponent<IProps> {
     public render() {
         let index = 0;
         const { boardData, winner } = this.props;
@@ -48,14 +47,14 @@ const mapStateToProps = createStructuredSelector<any, IStateProps>({
                                     key={index++}
                                     rowIndex={rowIndex}
                                     cellIndex={cellIndex}
-                                    onCellClicked={(selectedRowIndex, selectedCellIndex) => null}
+                                    onCellClicked={(selectedRowIndex, selectedCellIndex) => this.updateBoardData(selectedRowIndex, selectedCellIndex, cell)}
                                 />);
                         });
                     })
                 }
 
                 <div>
-                    <button>
+                    <button onClick={() => this.props.resetBoard()}>
                         Reset board
                     </button>
                 </div>
@@ -74,30 +73,11 @@ const mapStateToProps = createStructuredSelector<any, IStateProps>({
         )
     }
 
-    // private updateBoardData = (selectedRowIndex: number, selectedCellIndex: number, cell: string) => {
-    //     if (this.state.winner === null && cell === '') {
-    //         const boardData: string[][] = this.state.boardData.map((row) => row.map((cell) => cell));
-
-    //         boardData[selectedRowIndex][selectedCellIndex] = getNextPlayer()
-
-    //         this.setState({
-    //             boardData,
-    //         })
-
-    //         let winner = evaluateWinner(boardData, selectedRowIndex, selectedCellIndex)
-
-    //         if (winner !== null) {
-    //             this.setState({ winner })
-    //         }
-    //     }
-    // }
-
-    // private resetBoard = () => {
-    //     this.setState({ ...initialState });
-    //     playerIndex = 0;
-    //     console.log(this.state, initialState);
-    // }
-
+    private updateBoardData = (selectedRowIndex: number, selectedCellIndex: number, cell: string) => {
+        if (this.props.winner === null && cell === '') {
+            this.props.updateBoardData(selectedRowIndex, selectedCellIndex);
+        }
+    }
 }
 
-export const Board = connect(mapStateToProps)(BoardComponent)
+export const Board = connect(mapStateToProps, mapDispatchToProps)(BoardComponent);
